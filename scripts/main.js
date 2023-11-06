@@ -90,6 +90,7 @@ function writeHikes() {
         lng: -122.85908496766939,
         last_updated: firebase.firestore.Timestamp.fromDate(new Date("March 10, 2022"))
     });
+
     hikesRef.add({
         code: "NV01",
         name: "Mount Seymour Trail", //replace with your own city?
@@ -105,7 +106,7 @@ function writeHikes() {
     });
 }
 
-writeHikes(); //calling the function
+
 
 //------------------------------------------------------------------------------
 // Input parameter is a string representing the collection we are reading from
@@ -143,5 +144,7 @@ function displayCardsDynamically(collection) {
             })
         })
 }
+
+writeHikes(); //calling the function
 
 displayCardsDynamically("hikes");  //input param is the name of the collection
