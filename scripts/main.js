@@ -1,27 +1,3 @@
-// function getNameFromAuth() {
-//     firebase.auth().onAuthStateChanged(user => {
-//         // Check if a user is signed in:
-//         if (user) {
-//             // Do something for the currently logged-in user here: 
-//             console.log(user.uid); //print the uid in the browser console
-//             console.log(user.displayName);  //print the user name in the browser console
-//             userName = user.displayName;
-
-//             //method #1:  insert with JS
-//             //document.getElementById("name-goes-here").innerText = userName;    
-
-//             //method #2:  insert using jquery
-//             $("#name-goes-here").text(userName); //using jquery
-
-//             //method #3:  insert using querySelector
-//             //document.querySelector("#name-goes-here").innerText = userName
-
-//         } else {
-//             // No user is signed in.
-//         }
-//     });
-// }
-// getNameFromAuth(); //run the function
 //Global variable pointing to the current user's Firestore document
 var currentUser;
 
@@ -159,6 +135,7 @@ function displayCardsDynamically(collection) {
                 newcard.querySelector('.card-image').src = `./images/${hikeCode}.jpg`; //Example: NV01.jpg
                 newcard.querySelector('a').href = "eachHike.html?docID=" + docID;
                 newcard.querySelector('i').id = 'save-' + docID; // for assigning unique id to each save button
+                // newcard.querySelector('i').onclick = () => updateBookmark(docID);
                 newcard.querySelector('i').onclick = () => updateBookmark(docID);
 
                 currentUser.get().then(userDoc => {
@@ -191,23 +168,34 @@ function displayCardsDynamically(collection) {
 
 function updateBookmark(hikeID) {
     currentUser.get().then(userDoc => {
-        let bookmarks = userDoc.data().bookmarks;
+        let bookmarks = userDoc.data().bookmarks || [];
         let iconID = "save-" + hikeID;
         let isBookmarked = bookmarks.includes(hikeID);
 
         if (isBookmarked) {
             currentUser.update({
                 bookmarks: firebase.firestore.FieldValue.arrayRemove(hikeID)
-            }).then(() => {
-                document.getElementById(iconID).innerText = 'bookmark_border';
             })
+                .then(() => {
+                    document.getElementById(iconID).innerText = 'bookmark_border';
+                })
+                .catch(error => {
+                    console.error("Error removing bookmark:", error);
+                });
         } else {
             currentUser.update({
                 bookmarks: firebase.firestore.FieldValue.arrayUnion(hikeID)
-            }).then(() => {
-                document.getElementById(iconID).innerText = 'bookmark';
             })
+                .then(() => {
+                    document.getElementById(iconID).innerText = 'bookmark';
+                })
+                .catch(error => {
+                    console.error("Error adding bookmark:", error);
+                });
         }
-
-    });
+    })
+        .catch(error => {
+            console.error("Error fetching user data:", error);
+        });
 }
+
